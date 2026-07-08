@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
 
     private val blockedPatterns = listOf(
-        "analytics", "log/", "mon.tiktokv", "ads", "/monitor/",
+        "analytics", "/log/", "mon.tiktokv", "/ads/", "/monitor/",
         "log.tiktok", "abtest", "webcast/log"
     )
 
@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
 
         webView.settings.apply {
             javaScriptEnabled = true
-            domStorageEnabled = false
+            domStorageEnabled = true
             cacheMode = WebSettings.LOAD_NO_CACHE
             useWideViewPort = true
             loadWithOverviewMode = true
@@ -114,8 +114,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        webView.clearCache(true)
-        WebStorage.getInstance().deleteAllData()
         CookieManager.getInstance().flush()
     }
 
