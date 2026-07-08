@@ -17,10 +17,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
 
-    private val blockedPatterns = listOf(
-        "analytics", "/log/", "mon.tiktokv", "/ads/", "/monitor/",
-        "log.tiktok", "abtest", "webcast/log"
-    )
+    private val blockedPatterns = listOf<String>()
 
     private val blockedHosts = listOf(
         "onelink.me", "appsflyer.com", "adjust.com", "branch.io"
