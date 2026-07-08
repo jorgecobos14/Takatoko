@@ -17,8 +17,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
 
-    // Dominios de tracking/analytics que se bloquean a nivel de red
-    // para no gastar CPU/datos en telemetría que no necesitas.
     private val blockedPatterns = listOf(
         "analytics", "log/", "mon.tiktokv", "ads", "/monitor/",
         "log.tiktok", "abtest", "webcast/log"
@@ -30,7 +28,6 @@ class MainActivity : AppCompatActivity() {
         webView = WebView(this)
         setContentView(webView)
 
-        // Cookies persistentes habilitadas ANTES de cargar nada
         CookieManager.getInstance().setAcceptCookie(true)
         CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true)
 
@@ -48,17 +45,25 @@ class MainActivity : AppCompatActivity() {
         }
 
         webView.isSoundEffectsEnabled = false
-
-        // Compositing nativo del WebView; si notas jank en hardware muy viejo,
-        // prueba cambiar esto a View.LAYER_TYPE_NONE.
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
 
-        // Limpieza inicial: todo menos cookies (esas ya persisten aparte)
         webView.clearCache(true)
         webView.clearHistory()
         WebStorage.getInstance().deleteAllData()
 
         webView.webViewClient = object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(
+                view: WebView,
+                request: WebResourceRequest
+            ): Boolean {
+                val url = request.url
+                val scheme = url.scheme ?: ""
+                if (scheme != "http" && scheme != "https") {
+                    return true
+                }
+                return false
+            }
+
             override fun shouldInterceptRequest(
                 view: WebView,
                 request: WebResourceRequest
@@ -72,14 +77,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         webView.webChromeClient = WebChromeClient()
-
         webView.loadUrl("https://www.tiktok.com")
     }
 
     override fun onPause() {
         super.onPause()
-        // Al salir de la app: limpia todo el cache/storage en disco,
-        // pero las cookies de sesión se quedan.
         webView.clearCache(true)
         WebStorage.getInstance().deleteAllData()
         CookieManager.getInstance().flush()
@@ -91,7 +93,6 @@ class MainActivity : AppCompatActivity() {
             ComponentCallbacks2.TRIM_MEMORY_RUNNING_MODERATE,
             ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW,
             ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL -> {
-                // false = solo limpia RAM cache, no toca lo que ya está en disco
                 webView.clearCache(false)
             }
         }
