@@ -23,6 +23,19 @@ class MainActivity : AppCompatActivity() {
         "onelink.me", "appsflyer.com", "adjust.com", "branch.io"
     )
 
+    private val googleAuthHosts = listOf(
+        "accounts.google.com", "accounts.youtube.com"
+    )
+
+    private fun openInSystemBrowser(url: String) {
+        try {
+            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url))
+            intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+        } catch (e: Exception) {
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -66,6 +79,10 @@ class MainActivity : AppCompatActivity() {
                 if (blockedHosts.any { host.contains(it) }) {
                     return true
                 }
+                if (googleAuthHosts.any { host.contains(it) }) {
+                    openInSystemBrowser(uri.toString())
+                    return true
+                }
                 return false
             }
 
@@ -78,6 +95,10 @@ class MainActivity : AppCompatActivity() {
                     return true
                 }
                 if (blockedHosts.any { host.contains(it) }) {
+                    return true
+                }
+                if (googleAuthHosts.any { host.contains(it) }) {
+                    openInSystemBrowser(url)
                     return true
                 }
                 return false
@@ -116,6 +137,10 @@ class MainActivity : AppCompatActivity() {
                             return true
                         }
                         if (blockedHosts.any { host.contains(it) }) {
+                            return true
+                        }
+                        if (googleAuthHosts.any { host.contains(it) }) {
+                            openInSystemBrowser(uri.toString())
                             return true
                         }
                         view.loadUrl(uri.toString())
