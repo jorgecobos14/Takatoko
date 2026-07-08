@@ -22,6 +22,10 @@ class MainActivity : AppCompatActivity() {
         "log.tiktok", "abtest", "webcast/log"
     )
 
+    private val blockedHosts = listOf(
+        "onelink.me", "appsflyer.com", "adjust.com", "branch.io"
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -56,8 +60,13 @@ class MainActivity : AppCompatActivity() {
                 view: WebView,
                 request: WebResourceRequest
             ): Boolean {
-                val scheme = request.url.scheme ?: ""
+                val uri = request.url
+                val scheme = uri.scheme ?: ""
+                val host = uri.host ?: ""
                 if (scheme != "http" && scheme != "https") {
+                    return true
+                }
+                if (blockedHosts.any { host.contains(it) }) {
                     return true
                 }
                 return false
@@ -65,8 +74,13 @@ class MainActivity : AppCompatActivity() {
 
             @Suppress("DEPRECATION")
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-                val scheme = android.net.Uri.parse(url).scheme ?: ""
+                val uri = android.net.Uri.parse(url)
+                val scheme = uri.scheme ?: ""
+                val host = uri.host ?: ""
                 if (scheme != "http" && scheme != "https") {
+                    return true
+                }
+                if (blockedHosts.any { host.contains(it) }) {
                     return true
                 }
                 return false
