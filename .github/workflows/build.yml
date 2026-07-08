@@ -22,8 +22,9 @@ jobs:
           wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O sdk.zip
           unzip -q sdk.zip
           mv cmdline-tools latest
-          echo "y" | latest/bin/sdkmanager --sdk_root=/opt/android-sdk "platform-tools" "platforms;android-34" "build-tools;34.0.0" > /dev/null
-          echo "ANDROID_HOME=/opt/android-sdk" >> $GITHUB_ENV
+          yes | latest/bin/sdkmanager --sdk_root=/opt/android-sdk --licenses > /dev/null
+          yes | latest/bin/sdkmanager --sdk_root=/opt/android-sdk "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+          echo "ANDROID_HOME=/opt/android-sdk" >> $GITHUB_ENV/
           echo "ANDROID_SDK_ROOT=/opt/android-sdk" >> $GITHUB_ENV
 
       - name: Build debug APK
