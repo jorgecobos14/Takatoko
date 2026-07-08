@@ -56,8 +56,16 @@ class MainActivity : AppCompatActivity() {
                 view: WebView,
                 request: WebResourceRequest
             ): Boolean {
-                val url = request.url
-                val scheme = url.scheme ?: ""
+                val scheme = request.url.scheme ?: ""
+                if (scheme != "http" && scheme != "https") {
+                    return true
+                }
+                return false
+            }
+
+            @Suppress("DEPRECATION")
+            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                val scheme = android.net.Uri.parse(url).scheme ?: ""
                 if (scheme != "http" && scheme != "https") {
                     return true
                 }
@@ -76,7 +84,17 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        webView.webChromeClient = WebChromeClient()
+        webView.webChromeClient = object : WebChromeClient() {
+            override fun onCreateWindow(
+                view: WebView,
+                isDialog: Boolean,
+                isUserGesture: Boolean,
+                resultMsg: android.os.Message
+            ): Boolean {
+                return false
+            }
+        }
+
         webView.loadUrl("https://www.tiktok.com")
     }
 
