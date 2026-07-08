@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
             setGeolocationEnabled(false)
             saveFormData = false
             javaScriptCanOpenWindowsAutomatically = false
-            setSupportMultipleWindows(false)
+            setSupportMultipleWindows(true)
         }
 
         webView.isSoundEffectsEnabled = false
@@ -102,7 +102,29 @@ class MainActivity : AppCompatActivity() {
                 isUserGesture: Boolean,
                 resultMsg: android.os.Message
             ): Boolean {
-                return false
+                val transport = resultMsg.obj as WebView.WebViewTransport
+                val tempWebView = WebView(this@MainActivity)
+                tempWebView.webViewClient = object : WebViewClient() {
+                    override fun shouldOverrideUrlLoading(
+                        v: WebView,
+                        request: WebResourceRequest
+                    ): Boolean {
+                        val uri = request.url
+                        val scheme = uri.scheme ?: ""
+                        val host = uri.host ?: ""
+                        if (scheme != "http" && scheme != "https") {
+                            return true
+                        }
+                        if (blockedHosts.any { host.contains(it) }) {
+                            return true
+                        }
+                        view.loadUrl(uri.toString())
+                        return true
+                    }
+                }
+                transport.webView = tempWebView
+                resultMsg.sendToTarget()
+                return true
             }
         }
 
